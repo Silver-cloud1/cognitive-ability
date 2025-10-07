@@ -1,0 +1,179 @@
+<!Doctype html>
+<head>
+    <title>Kognitive Faehigkeit</title>
+</head>
+<body>
+     <button onclick="startGame()">Start</button>
+     <div id="timerDisplay" style="color: white; font-size: 40px; margin: 20px;">0.62</div>
+     <div class="box">
+        <div class="square-container">
+            <div class="square"></div>
+            <div class="square"></div>
+            <div class="square"></div>
+            <div class="square"></div>
+            <div class="square"></div>
+            <div class="square"></div>
+            <div class="square"></div>
+            <div class="square"></div>
+            <div class="square"></div>
+        </div>
+    </div>
+</body>
+<style>
+    body {
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+    display:flex;
+    flex-direction: column;
+    background-color: black;
+    }
+.box {
+    color: balck;
+    width: 1200px;
+    height: 800px;
+    border: 5px solid;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+.square-container {
+    display: grid;
+    grid-template-columns: repeat(3, 120px);
+    gap: 100px;
+    justify-content: center;
+    margin-top: 40px;
+    column-gap: 150px;
+}
+.square{
+    width: 150px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 8px;
+    border: 2px solid white;
+    font-size: 60px;
+    font-weight: bold;
+    justify-content: center;
+    cursor: pointer;
+}
+button {
+    width: 150px;
+    height: 80px;
+    border-radius: 10px;
+    color: black;
+    font-size: 30px;
+    background-color:green  
+}
+</style>
+<script>
+    const squares = document.querySelectorAll('.square');
+    const startButton = document.querySelector('button');
+    const timerDisplay = document.getElementById('timerDisplay');
+    
+    let timer = 0.62; 
+    let currentNumber = 1;
+    let gameActive = false;
+    let timerInterval;
+    let numberPositions = {};
+
+    startButton.addEventListener('click', startGame);
+    
+    squares.forEach(square => {
+        square.addEventListener('click', function() {
+            SquareClick(this);
+        });
+    });
+
+    function startGame(){
+        currentNumber = 1;
+        gameActive = true;
+        timer = 0.62;
+        
+        clearInterval(timerInterval);
+        
+        squares.forEach(square => {
+            square.style.backgroundColor = 'white';
+            square.style.visibility = 'visible';
+        });
+        
+        numberPositions = placeRandomNumber();
+        startTimer();
+    }
+
+    function startTimer(){
+        timerDisplay.textContent = timer.toFixed(2);
+        
+        timerInterval = setInterval(function(){
+            if (timer > 0) {
+                timer -= 0.01;
+                timerDisplay.textContent = timer.toFixed(2);
+            } else {
+                clearInterval(timerInterval);
+                startGuessingPhase();
+            }
+        }, 10);
+    }
+
+    function placeRandomNumber(){
+        const numbers = [1,2,3,4,5,6,7,8,9];
+        
+        for (let i = numbers.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+        }
+        
+        const positions = {};
+        squares.forEach((square, index) => {
+            const number = numbers[index];
+            square.textContent = number;
+            positions[number] = square;
+        });
+        
+        return positions;
+    }
+
+    function startGuessingPhase() {
+        squares.forEach(square => {
+            square.textContent = '';
+        });
+        gameActive = true;
+    }
+
+    function SquareClick(clickedSquare){
+        if (!gameActive) return;
+        
+        let isCorrect = false;
+        
+        for (const [number, square] of Object.entries(numberPositions)) {
+            if (square === clickedSquare && parseInt(number) === currentNumber) {
+                isCorrect = true;
+                break;
+            }
+        }
+        
+        if (isCorrect) {
+            clickedSquare.style.visibility = 'hidden';
+            currentNumber++;
+            
+            if (currentNumber > 9) {
+                gameActive = false;
+                timerDisplay.textContent = "Gewonnen!";
+            }
+        } else {
+            restartGame();
+        }
+    }
+
+    function restartGame(){
+        gameActive = false;
+        clearInterval(timerInterval);
+        timerDisplay.textContent = "Falsch! Neustart...";
+        
+        setTimeout(() => {
+            startGame();
+        }, 1000);
+    }
+</script>
+
