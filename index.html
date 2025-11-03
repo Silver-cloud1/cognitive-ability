@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <title>Kognitive Faehigkeit</title>
+    <style>
+        body {
+            height: 100vh;
+            align-items: center;
+            justify-content: center;
+            display: flex;
+            flex-direction: column;
+            background-color: black;
+        }
+        .box {
+            color: black;
+            width: 1200px;
+            height: 800px;
+            border: 5px solid white;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+        }
+        .square-container {
+            display: grid;
+            grid-template-columns: repeat(3, 120px);
+            gap: 100px;
+            justify-content: center;
+            margin-top: 40px;
+            column-gap: 150px;
+        }
+        .square {
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border-radius: 8px;
+            border: 2px solid white;
+            font-size: 60px;
+            font-weight: bold;
+            justify-content: center;
+            cursor: pointer;
+        }
+        button {
+            width: 150px;
+            height: 80px;
+            border-radius: 10px;
+            color: black;
+            font-size: 30px;
+            background-color: green;
+        }
+        .timer {
+            color: white;
+            font-size: 30px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="timer">Zeit: <span id="timer">0.62</span>s</div>
+    <button onclick="startGame()">Start</button>
+    <div id="boxes" class="box">
+        <div class="square-container">
+            <div class="square"></div>
+            <div class="square"></div>
+            <div class="square"></div>
+            <div class="square"></div>
+            <div class="square"></div>
+            <div class="square"></div>
+            <div class="square"></div>
+            <div class="square"></div>
+            <div class="square"></div>
+        </div>
+    </div>
+
+    <script>
+        const squares = document.querySelectorAll('.square');
+        const startButton = document.querySelector('button');
+        const timerDisplay = document.getElementById('timer');
+        
+        let timer = 0.62; 
+        let currentNumber = 1;
+        let gameActive = false;
+        let timerInterval;
+        let totalTime = 0;
+        let totalTimeInterval;
+        
+        startButton.addEventListener('click', startGame);
+        
+        squares.forEach(square => {
+            square.addEventListener('click', function() {
+                SquareClick(this);
+            });
+        });
+        
+        function startGame(){
+            currentNumber = 1;
+            gameActive = true;
+            totalTime = 0;
+            
+            // Reset alle Karten
+            squares.forEach(square => {
+                square.style.backgroundColor = "white";
+                square.style.color = "black";
+                square.textContent = "";
+            });
+            
+            // Timer für die Anzeige der Zahlen
+            timer = 0.62;
+            timerDisplay.textContent = timer.toFixed(2);
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(function(){
+                if (timer > 0) {
+                    timer -= 0.01;
+                    timerDisplay.textContent = timer.toFixed(2);
+                } else {
+                    timer = 0;
+                    timerDisplay.textContent = "0.00";
+                    hideNumbers();
+                    clearInterval(timerInterval);
+                }
+            }, 10);
+            
+            // Gesamtzeit-Timer
+            clearInterval(totalTimeInterval);
+            totalTimeInterval = setInterval(function(){
+                if (gameActive) {
+                    totalTime += 0.01;
+                }
+            }, 10);
+            
+            placeRandomNumber();
+        }
+        
+        function placeRandomNumber(){
+            const numbers = [1,2,3,4,5,6,7,8,9];
+            for (let i = numbers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+            }
+            
+            squares.forEach((square, index) => {
+                const number = numbers[index];
+                square.textContent = number;
+                square.dataset.number = number; // Zahl als Datenattribut speichern
+            });
+        }
+        
+        function hideNumbers() {
+            squares.forEach(square => {
+                square.textContent = "";
+            });
+        }
+        
+        function SquareClick(clickedSquare){
+            if (!gameActive) return;
+            
+            const clickedNumber = parseInt(clickedSquare.dataset.number);
+            
+            // Prüfen ob die richtige Zahl geklickt wurde
+            if (clickedNumber === currentNumber) {
+                // Richtige Zahl - Karte verschwinden lassen
+                clickedSquare.style.backgroundColor = "black";
+                clickedSquare.style.borderColor = "black";
+                clickedSquare.textContent = "";
+                currentNumber++;
+                
+                // Prüfen ob alle Zahlen gefunden wurden
+                if (currentNumber > 9) {
+                    gameActive = false;
+                    clearInterval(totalTimeInterval);
+                    alert("Glückwunsch! Sie haben " + totalTime.toFixed(2) + " Sekunden gebraucht.");
+                }
+            } else {
+                // Falsche Zahl - Spiel beenden
+                gameActive = false;
+                clearInterval(totalTimeInterval);
+                alert("Falsche Reihenfolge! Sie haben " + totalTime.toFixed(2) + " Sekunden gebraucht.");
+            }
+        }
+        
+        function restartGame(){
+            timer = 0.62;
+        }
+    </script>
+</body>
+</html>
+
