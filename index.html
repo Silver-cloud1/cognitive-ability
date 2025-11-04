@@ -57,7 +57,7 @@
     </style>
 </head>
 <body>
-    <div class="timer">Zeit: <span id="timer">1.00</span>s</div>
+    <div class="timer">Zeit: <span id="timer">0.62</span>s</div>
     <button onclick="startGame()">Start</button>
     <div id="boxes" class="box">
         <div class="square-container">
@@ -78,7 +78,7 @@
         const startButton = document.querySelector('button');
         const timerDisplay = document.getElementById('timer');
         
-        let timer = 1.00; 
+        let timer = 0.62; 
         let currentNumber = 1;
         let gameActive = false;
         let timerInterval;
@@ -106,7 +106,7 @@
             });
             
             // Timer für die Anzeige der Zahlen
-            timer = 1.00;
+            timer = 0.62;
             timerDisplay.textContent = timer.toFixed(2);
             
             clearInterval(timerInterval);
@@ -186,5 +186,6 @@
     </script>
 </body>
 </html>
+
 
 
